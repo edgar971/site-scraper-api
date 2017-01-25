@@ -12,7 +12,8 @@
         {"name": "id", "type": "serial", "properties": {"nullable":false,"primary_key":true,"auto_increment":true}},
         {"name": "url", "type": "string", "properties": {}},
         {"name": "directory", "type": "string", "properties": {}},
-        {"name": "entire_site", "type": "bool", "properties": {}},
+        {"name": "entire_site", "type": "boolean", "properties": {}},
+        {"name": "processed", "type": "boolean", "properties": {}},
         {"name": "created_at", "type": "datetime", "properties": {}},
         {"name": "updated_at", "type": "datetime", "properties": {}}
       ]

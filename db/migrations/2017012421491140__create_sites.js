@@ -21,7 +21,10 @@ class CreateSites extends Nodal.Migration {
               "name":"directory","type":"string"
           },
           {
-              "name":"entire_site","type":"bool"
+              "name":"entire_site","type":"boolean"
+          },
+          {
+              "name":"processed","type":"boolean"
           }
 
       ])

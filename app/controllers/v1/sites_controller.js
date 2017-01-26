@@ -7,8 +7,6 @@ const URL = require('url');
 class V1SitesController extends Nodal.Controller {
 
 
-
-
     index() {
 
         Site.query()
@@ -95,7 +93,7 @@ class V1SitesController extends Nodal.Controller {
             prettifyUrls: true,
             filenameGenerator: 'bySiteStructure',
             recursive: false,
-            maxDepth: 10,
+            maxDepth: 25,
             sources: [
                 { selector: 'style' },
                 { selector: '[style]', attr: 'style' },

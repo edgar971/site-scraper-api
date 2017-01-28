@@ -4,6 +4,9 @@ const Nodal = require('nodal');
 const scraper = require('website-scraper');
 const Site = Nodal.require('app/models/site.js');
 const URL = require('url');
+const webshot = require('webshot');
+const s3 = require('../../helpers/s3');
+
 class V1SitesController extends Nodal.Controller {
 
 
@@ -12,6 +15,7 @@ class V1SitesController extends Nodal.Controller {
         Site.query()
             .where(this.params.query)
             .end((err, models) => {
+
 
                 this.respond(err || models);
 
@@ -43,46 +47,98 @@ class V1SitesController extends Nodal.Controller {
 
         Site.create(this.params.body, (err, model) => {
 
-            this.scrape(model);
+            this.process(model);
             this.respond(err || model);
 
         });
 
     }
 
-    scrape(site) {
+    process(site) {
 
         // Setup the scrape options
-        let options = this.defaultScrapeOptions();
         let siteObject = site.toObject();
 
-        options.urls.push(siteObject.url);
-        options.directory = siteObject.directory;
-        options.recursive = siteObject.entire_site;
-
-        // Function to determine which links to follow
-        options.urlFilter = (site_url) => {
-
-            let giveURLHost = URL.parse(siteObject.url).host;
-            let currentURLHost = URL.parse(site_url).host;
-
-            return currentURLHost === giveURLHost;
-
-        };
-
         // Run the site scraper
-        scraper(options).then((data) => {
+        this.scrape(siteObject).then((data) => {
 
-            console.log('Done processing ' + siteObject.url);
-            site.set('processed', true);
-            site.save();
+            console.log('Done Scraping Site ' + siteObject.url);
+
+            //Take the screenshot
+            webshot(siteObject.url, siteObject.directory + 'screenshot.png', (image) => {
+
+                console.log('Done with image for ' + siteObject.url);
+
+                // Upload to s3.
+                let uploader = this.uploadToS3(siteObject);
+
+                uploader.on('error', function(err) {
+                    console.error("unable to sync:", err.stack);
+                });
+                uploader.on('progress', function() {
+                    console.log("progress", uploader.progressAmount, uploader.progressTotal);
+                });
+                uploader.on('end', function() {
+                    console.log("done uploading");
+                    site.set('processed', true);
+                    site.save();
+                    console.log(uploader);
+                });
+
+
+
+            });
 
         }).error(error => {
 
             console.log(error);
 
         })
+    }
 
+    scrape(site) {
+
+        let options = this.defaultScrapeOptions();
+
+        // Add the URL and custom directory
+        options.urls.push(site.url);
+        options.directory = site.directory;
+        options.recursive = site.entire_site;
+
+        // Function to determine which links to follow
+        // Skips external ones
+
+        options.urlFilter = (site_url) => {
+
+            let giveURLHost = URL.parse(site.url).host;
+            let currentURLHost = URL.parse(site_url).host;
+
+            return currentURLHost === giveURLHost;
+
+        };
+
+        console.log(options);
+        // Run the scraper
+        return scraper(options);
+
+    }
+
+    uploadToS3(site) {
+
+        let params = {
+            localDir: site.directory,
+            deleteRemoved: true, // default false, whether to remove s3 objects
+                                 // that have no corresponding local file.
+            s3Params: {
+                Bucket: process.env.S3_BUCKET,
+                Prefix: "public/sites/" + site.directory,
+                ACL: 'public-read'
+                // other options supported by putObject, except Body and ContentLength.
+                // See: http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#putObject-property
+            },
+        };
+
+        return s3.uploadDir(params);
 
     }
 
@@ -117,35 +173,25 @@ class V1SitesController extends Nodal.Controller {
         }
     }
 
+    friendlyURLName(url) {
+
+        let name = URL.parse(url).host;
+
+        //remove dots
+        name = name.replace(/\./g,'_');
+
+        return name;
+
+    }
+
     createSiteDirectory(url) {
 
-        let domain = URL.parse(url).host;
+        let domain = this.friendlyURLName(url);
 
         // add the unix timestamp
         return process.env.ROOT_SCRAPE_DIR + domain + '_' + Math.floor(new Date() / 1000) + '/';
 
     }
-
-    // Not needed
-    // update() {
-    //
-    //   Site.update(this.params.route.id, this.params.body, (err, model) => {
-    //
-    //     this.respond(err || model);
-    //
-    //   });
-    //
-    // }
-    //
-    // destroy() {
-    //
-    //   Site.destroy(this.params.route.id, (err, model) => {
-    //
-    //     this.respond(err || model);
-    //
-    //   });
-    //
-    // }
 
 }
 

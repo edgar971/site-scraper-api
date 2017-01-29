@@ -9,11 +9,25 @@ const s3 = require('../../helpers/s3');
 
 class V1SitesController extends Nodal.Controller {
 
+    parseOrderBy(query) {
+
+        let orderBy = [];
+
+        if (!query.__orderBy && query.__orderBy.length) return false;
+
+        orderBy = query.__orderBy.split('|');
+
+        return orderBy;
+
+    }
 
     index() {
 
+        let order = this.parseOrderBy(this.params.query);
+
         Site.query()
             .where(this.params.query)
+            .orderBy(...order)
             .end((err, models) => {
 
 

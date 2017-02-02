@@ -13,7 +13,7 @@ class V1SitesController extends Nodal.Controller {
 
         let orderBy = [];
 
-        if (!query.__orderBy && query.__orderBy.length) return false;
+        if (!query.__orderBy) return false;
 
         orderBy = query.__orderBy.split('|');
 
@@ -25,15 +25,15 @@ class V1SitesController extends Nodal.Controller {
 
         let order = this.parseOrderBy(this.params.query);
 
-        Site.query()
-            .where(this.params.query)
-            .orderBy(...order)
-            .end((err, models) => {
+        let Query = Site.query().where(this.params.query);
 
+        if(order) {
+            Query = Query.orderBy(...order);
+        }
 
-                this.respond(err || models);
-
-            });
+        Query.end((err, models) => {
+            this.respond(err || models);
+        });
 
     }
 
@@ -57,6 +57,8 @@ class V1SitesController extends Nodal.Controller {
         // // Add the additional options for the scraper
         this.params.body.entire_site = this.params.body.entire_site || false;
 
+        this.params.body.base_path = process.env.BASE_PATH;
+
         this.params.body.processed = false;
 
         Site.create(this.params.body, (err, model) => {
@@ -78,8 +80,10 @@ class V1SitesController extends Nodal.Controller {
 
             console.log('Done Scraping Site ' + siteObject.url);
 
+            let screenshot_path = siteObject.directory + 'screenshot.png';
+
             //Take the screenshot
-            webshot(siteObject.url, siteObject.directory + 'screenshot.png', (image) => {
+            webshot(siteObject.url, screenshot_path, (image) => {
 
                 console.log('Done with image for ' + siteObject.url);
 
@@ -89,14 +93,20 @@ class V1SitesController extends Nodal.Controller {
                 uploader.on('error', function(err) {
                     console.error("unable to sync:", err.stack);
                 });
-                uploader.on('progress', function() {
-                    console.log("progress", uploader.progressAmount, uploader.progressTotal);
-                });
+
+                // uploader.on('progress', function() {
+                //     console.log("progress", uploader.progressAmount, uploader.progressTotal);
+                // });
+
                 uploader.on('end', function() {
+
                     console.log("done uploading");
+
                     site.set('processed', true);
+                    site.set('screenshot', screenshot_path);
+
                     site.save();
-                    console.log(uploader);
+
                 });
 
 
@@ -131,7 +141,7 @@ class V1SitesController extends Nodal.Controller {
 
         };
 
-        console.log(options);
+
         // Run the scraper
         return scraper(options);
 
@@ -145,7 +155,7 @@ class V1SitesController extends Nodal.Controller {
                                  // that have no corresponding local file.
             s3Params: {
                 Bucket: process.env.S3_BUCKET,
-                Prefix: "public/sites/" + site.directory,
+                Prefix: site.directory,
                 ACL: 'public-read'
                 // other options supported by putObject, except Body and ContentLength.
                 // See: http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#putObject-property
@@ -161,7 +171,6 @@ class V1SitesController extends Nodal.Controller {
             urls: [],
             directory: 'data/',
             prettifyUrls: true,
-            filenameGenerator: 'bySiteStructure',
             recursive: false,
             maxDepth: 25,
             sources: [

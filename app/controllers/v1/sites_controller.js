@@ -60,6 +60,7 @@ class V1SitesController extends Nodal.Controller {
         this.params.body.base_path = process.env.BASE_PATH;
 
         this.params.body.processed = false;
+        this.params.body.title = null;
 
         Site.create(this.params.body, (err, model) => {
 
@@ -81,6 +82,10 @@ class V1SitesController extends Nodal.Controller {
             console.log('Done Scraping Site ' + siteObject.url);
 
             let screenshot_path = siteObject.directory + 'screenshot.png';
+
+            let title = this.getPageTitle(data);
+            site.set('title', title);
+            site.save();
 
             //Take the screenshot
             webshot(siteObject.url, screenshot_path, (image) => {
@@ -118,6 +123,30 @@ class V1SitesController extends Nodal.Controller {
             console.log(error);
 
         })
+    }
+
+    /**
+     *
+     * @param data
+     * @returns null|string
+     */
+    getPageTitle(data) {
+
+        let html = (!!data[0]) ? data[0].getText() : false;
+        let title = null;
+
+        if(html) {
+
+            let reg = /(<\s*title[^>]*>(.+?)<\s*\/\s*title)>/gi;
+
+            let results = reg.exec(html);
+
+            title = (results && results[2]) ? results[2].replace(/^\s\s*/, '').replace(/\s\s*$/, '') : null;
+
+        }
+
+        return title;
+
     }
 
     scrape(site) {

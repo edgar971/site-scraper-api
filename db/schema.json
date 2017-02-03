@@ -13,6 +13,7 @@
         {"name": "url", "type": "string", "properties": {}},
         {"name": "directory", "type": "string", "properties": {}},
         {"name": "base_path", "type": "string", "properties": {}},
+        {"name": "title", "type": "string", "properties": {}},
         {"name": "screenshot", "type": "string", "properties": {}},
         {"name": "entire_site", "type": "boolean", "properties": {}},
         {"name": "processed", "type": "boolean", "properties": {}},

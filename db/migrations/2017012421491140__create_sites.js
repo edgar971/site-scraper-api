@@ -24,6 +24,9 @@ class CreateSites extends Nodal.Migration {
               "name":"base_path","type":"string"
           },
           {
+              "name":"title","type":"string"
+          },
+          {
               "name":"screenshot","type":"string"
           },
           {

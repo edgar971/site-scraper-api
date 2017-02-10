@@ -6,6 +6,8 @@ const Site = Nodal.require('app/models/site.js');
 const URL = require('url');
 const webshot = require('webshot');
 const s3 = require('../../helpers/s3');
+const fs = require('fs');
+const archiver = require('archiver');
 
 class V1SitesController extends Nodal.Controller {
 
@@ -87,36 +89,44 @@ class V1SitesController extends Nodal.Controller {
             site.set('title', title);
             site.save();
 
-            //Take the screenshot
-            webshot(siteObject.url, screenshot_path, (image) => {
+            let zip = this.zipSite(siteObject);
 
-                console.log('Done with image for ' + siteObject.url);
+            // listen for all archive data to be written
+            zip.on('close', () => {
 
-                // Upload to s3.
-                let uploader = this.uploadToS3(siteObject);
+                //Take the screenshot
+                webshot(siteObject.url, screenshot_path, (image) => {
 
-                uploader.on('error', function(err) {
-                    console.error("unable to sync:", err.stack);
+                    console.log('Done with image for ' + siteObject.url);
+
+                    // Upload to s3.
+                    let uploader = this.uploadToS3(siteObject);
+
+                    uploader.on('error', function(err) {
+                        console.error("unable to sync:", err.stack);
+                    });
+
+                    // uploader.on('progress', function() {
+                    //     console.log("progress", uploader.progressAmount, uploader.progressTotal);
+                    // });
+
+                    uploader.on('end', function() {
+
+                        console.log("done uploading");
+
+                        site.set('processed', true);
+                        site.set('screenshot', screenshot_path);
+
+                        site.save();
+
+                    });
+
+
+
                 });
-
-                // uploader.on('progress', function() {
-                //     console.log("progress", uploader.progressAmount, uploader.progressTotal);
-                // });
-
-                uploader.on('end', function() {
-
-                    console.log("done uploading");
-
-                    site.set('processed', true);
-                    site.set('screenshot', screenshot_path);
-
-                    site.save();
-
-                });
-
-
 
             });
+
 
         }).error(error => {
 
@@ -192,6 +202,22 @@ class V1SitesController extends Nodal.Controller {
         };
 
         return s3.uploadDir(params);
+
+    }
+
+    zipSite(site) {
+
+        let output = fs.createWriteStream(site.directory + 'site.zip');
+
+        let archive = archiver('zip', {
+            store: true // Sets the compression method to STORE.
+        });
+
+        archive.pipe(output);
+
+        archive.directory(site.directory, false).finalize();
+
+        return output;
 
     }
 

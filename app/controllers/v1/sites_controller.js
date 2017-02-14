@@ -83,41 +83,47 @@ class V1SitesController extends Nodal.Controller {
 
             console.log('Done Scraping Site ' + siteObject.url);
 
-            let screenshot_path = siteObject.directory + 'screenshot.png';
+            let screenshot_path = siteObject.directory + 'www/screenshot.png';
 
             let title = this.getPageTitle(data);
             site.set('title', title);
             site.save();
 
-            let zip = this.zipSite(siteObject);
+            //Take the screenshot
+            webshot(siteObject.url, screenshot_path, (image) => {
 
-            // listen for all archive data to be written
-            zip.on('close', () => {
+                console.log('Done with image for ' + siteObject.url);
 
-                //Take the screenshot
-                webshot(siteObject.url, screenshot_path, (image) => {
+                // Upload to s3.
+                let uploader = this.uploadToS3(siteObject);
 
-                    console.log('Done with image for ' + siteObject.url);
+                uploader.on('error', function(err) {
+                    console.error("unable to sync:", err.stack);
+                });
 
-                    // Upload to s3.
-                    let uploader = this.uploadToS3(siteObject);
+                // uploader.on('progress', function() {
+                //     console.log("progress", uploader.progressAmount, uploader.progressTotal);
+                // });
 
-                    uploader.on('error', function(err) {
-                        console.error("unable to sync:", err.stack);
-                    });
+                uploader.on('end', () => {
 
-                    // uploader.on('progress', function() {
-                    //     console.log("progress", uploader.progressAmount, uploader.progressTotal);
-                    // });
+                    // Zip site and upload to S3
+                    let zip = this.zipSite(siteObject);
 
-                    uploader.on('end', function() {
+                    zip.then((data) => {
 
-                        console.log("done uploading");
+                        let zipUpload = this.zipUploadS3(siteObject);
 
-                        site.set('processed', true);
-                        site.set('screenshot', screenshot_path);
+                        zipUpload.then((upload) => {
 
-                        site.save();
+                            site.set('processed', true);
+                            site.set('screenshot', screenshot_path);
+                            site.save();
+
+                        }).catch((err) => {
+                            console.log(err)
+                        });
+
 
                     });
 
@@ -125,7 +131,10 @@ class V1SitesController extends Nodal.Controller {
 
                 });
 
+
+
             });
+
 
 
         }).error(error => {
@@ -165,7 +174,7 @@ class V1SitesController extends Nodal.Controller {
 
         // Add the URL and custom directory
         options.urls.push(site.url);
-        options.directory = site.directory;
+        options.directory = site.directory + 'www/';
         options.recursive = site.entire_site;
 
         // Function to determine which links to follow
@@ -198,26 +207,92 @@ class V1SitesController extends Nodal.Controller {
                 ACL: 'public-read'
                 // other options supported by putObject, except Body and ContentLength.
                 // See: http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#putObject-property
-            },
+            }
         };
 
         return s3.uploadDir(params);
 
     }
 
-    zipSite(site) {
+    zipUploadS3(site) {
 
-        let output = fs.createWriteStream(site.directory + 'site.zip');
+        return new Promise((resolve, reject) => {
 
-        let archive = archiver('zip', {
-            store: true // Sets the compression method to STORE.
+            let params = {
+                localFile: site.directory + 'archive/site.zip',
+                // that have no corresponding local file.
+                s3Params: {
+                    Bucket: process.env.S3_BUCKET,
+                    Key: site.directory + 'archive/site.zip',
+                    ACL: 'public-read'
+                    // other options supported by putObject, except Body and ContentLength.
+                    // See: http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#putObject-property
+                },
+            };
+
+            let uploader = s3.uploadFile(params);
+
+            uploader.on('error', (err) => {
+
+                reject(err);
+
+            });
+
+            // uploader.on('progress', function() {
+            //     console.log("progress", uploader.progressAmount, uploader.progressTotal);
+            // });
+
+            uploader.on('end', () => {
+
+                resolve(uploader);
+
+            });
+
         });
 
-        archive.pipe(output);
 
-        archive.directory(site.directory, false).finalize();
 
-        return output;
+    }
+
+    zipSite(site) {
+
+        return new Promise((resolve, reject) => {
+            let output_dir = site.directory + 'archive/';
+            let output_file = output_dir + 'site.zip';
+            let site_dir = site.directory + 'www/';
+
+            // Create dir if missing
+            if (!fs.existsSync(output_dir)){
+                fs.mkdirSync(output_dir);
+            }
+
+            let output = fs.createWriteStream(output_file);
+
+            let archive = archiver('zip', {
+                store: true // Sets the compression method to STORE.
+            });
+
+
+            output.on('close', () => {
+
+                resolve(archive);
+
+            });
+
+
+            archive.on('error', (err) => {
+
+                reject(err);
+
+            });
+
+            archive.pipe(output);
+
+            archive.directory(site_dir,false).finalize();
+
+
+        });
+
 
     }
 
@@ -270,6 +345,7 @@ class V1SitesController extends Nodal.Controller {
         return process.env.ROOT_SCRAPE_DIR + domain + '_' + Math.floor(new Date() / 1000) + '/';
 
     }
+
 
 }
 

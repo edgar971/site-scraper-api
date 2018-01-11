@@ -1,0 +1,7 @@
+--require ts-node/register 
+--require chai 
+--require sinon
+--recursive 
+--reporter spec
+
+__acceptance_specs__/*.specs.ts*

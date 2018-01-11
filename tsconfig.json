@@ -1,0 +1,38 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "noImplicitAny": false,
+    "sourceMap": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "outDir": "./build/",
+    "experimentalDecorators": true,
+    "typeRoots": [
+      "node_modules/@types"
+    ],
+    "jsx": "react",
+    "lib": [
+      "dom",
+      "es5",
+      "es6",
+      "es7",
+      "es2015",
+      "es2015.promise"
+    ],
+    "rootDirs": [
+      "./"
+    ],
+    "baseUrl": ".",
+    "types": [
+      "mocha",
+      "node"
+    ]
+  },
+  "include": [
+    "./**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "name": "website-html-scraper-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "watch": "pm2 start index.js --watch",
+    "watch:logs": "pm2 logs",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/edgar971/site-scraper-api.git"
+  },
+  "author": "Edgar Pino <me@edgarpino.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/edgar971/site-scraper-api/issues"
+  },
+  "homepage": "https://github.com/edgar971/site-scraper-api#readme",
+  "dependencies": {
+    "@types/node": "^9.3.0",
+    "koa": "^2.4.1",
+    "koa-body": "^2.5.0",
+    "koa-router": "^7.3.0",
+    "pm2": "^2.9.1",
+    "ts-node": "^4.1.0"
+  },
+  "devDependencies": {
+    "typescript": "^2.6.2"
+  }
+}

@@ -3,3 +3,4 @@ node_modules
 public/sites
 .env
 npm-debug.log
+yarn-error.log

@@ -9,7 +9,9 @@
     "watch:logs": "pm2 logs",
     "test": "mocha --opts ./test/mocha.opts",
     "test:acceptance": "mocha --opts ./test/mocha.acceptance.opts",
-    "test:acceptance:watch": "yarn test:acceptance --watch --watch-extensions ts"
+    "test:acceptance:watch": "yarn test:acceptance --watch --watch-extensions ts",
+    "test:integration": "mocha --opts ./test/mocha.integration.opts",
+    "test:integration:watch": "yarn test:integration --watch --watch-extensions ts"
   },
   "repository": {
     "type": "git",
@@ -36,6 +38,7 @@
     "pg-hstore": "^2.3.2",
     "pm2": "^2.9.1",
     "sequelize": "^4.31.0",
+    "sequelize-cli": "^3.2.0",
     "sinon": "^4.1.4",
     "sinon-chai": "^2.14.0",
     "ts-node": "^4.1.0"

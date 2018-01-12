@@ -1,0 +1,13 @@
+{
+  "appName": "website-scraper-api",
+  "env": "development",
+  "redis": {
+    "namespace": "string",
+    "host": "string",
+    "port": "number"
+  },
+  "web": {
+    "port": "string",
+    "baseUrl": "string"
+  }
+}

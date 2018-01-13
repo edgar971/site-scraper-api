@@ -1,12 +1,12 @@
-export interface Site {
-  id: number,
-  url: string,
-  directory: string,
-  base_path: string,
+export interface ISite {
+  id?: number,
+  url?: string,
+  directory?: string,
+  base_path?: string,
   title: string,
-  screenshot: string,
+  screenshot?: string,
   entire_site: boolean,
   processed: boolean,
-  created_at: Date,
-  updated_at: Date
+  created_at?: Date,
+  updated_at?: Date
 }

@@ -8,6 +8,7 @@
     "watch": "pm2 start index.js --watch",
     "watch:logs": "pm2 logs",
     "test": "mocha --opts ./test/mocha.opts",
+    "test:watch": "yarn test --watch --watch-extensions ts",
     "test:acceptance": "mocha --opts ./test/mocha.acceptance.opts",
     "test:acceptance:watch": "yarn test:acceptance --watch --watch-extensions ts",
     "test:integration": "mocha --opts ./test/mocha.integration.opts",

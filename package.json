@@ -34,9 +34,11 @@
     "koa-body": "^2.5.0",
     "koa-router": "^7.3.0",
     "mocha": "^4.1.0",
+    "pg-promise": "^7.4.1",
     "pm2": "^2.9.1",
     "sinon": "^4.1.4",
     "sinon-chai": "^2.14.0",
+    "sql-template-strings": "^2.2.2",
     "ts-node": "^4.1.0"
   },
   "devDependencies": {

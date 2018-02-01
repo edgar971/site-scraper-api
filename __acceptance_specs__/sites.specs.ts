@@ -1,15 +1,34 @@
 import * as chai from 'chai'
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
-import { ISite } from '../common/interfaces';
+import axios, { AxiosResponse } from 'axios'
+import { Site } from '../common/interfaces';
+import config from 'config'
 
 chai.should()
-const apiUrl = 'http://localhost:8888/v2'
+const apiUrl = `${config.web.baseUrl}:${config.web.port}/v2`
 
 context('#sitesApi specs', () => {
   describe('when calling the API endpoint to list the sites successfully', () => {
     const url = `${apiUrl}/sites`
+    const expectedSite1: Site = {
+      url: 'http://website.com',
+      directory: 'random/dir',
+      base_path: 'basepath',
+      title: 'an awesome site',
+      screenshot: 'shot.png',
+      entire_site: false,
+      processed: false
+    }
+    const expectedSite2: Site = {
+      url: 'http://website2.com',
+      directory: 'random/dir',
+      base_path: 'basepath',
+      title: 'website 2',
+      screenshot: 'shot.png',
+      entire_site: false,
+      processed: false
+    }
     let response: AxiosResponse
-    let sites: Array<ISite>
+    let sites: Array<Site>
 
     before(async () => {
       response = await axios.get(url)
@@ -17,6 +36,7 @@ context('#sitesApi specs', () => {
     })
 
     it('should return 200', () => response.status.should.equal(200))
-    it('should be an array of sites', () => sites.should.be.an('array'))
+    it('should return the expected site 1', () => sites.filter(x => x.title === expectedSite1.title).length.should.eql(1))
+    it('should return the expected site 2', () => sites.filter(x => x.title === expectedSite2.title).length.should.eql(1))
   })
 })

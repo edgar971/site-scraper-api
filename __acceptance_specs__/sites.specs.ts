@@ -1,6 +1,6 @@
 import * as chai from 'chai'
 import axios, { AxiosResponse } from 'axios'
-import { Site } from '../common/interfaces';
+import { Site } from 'common/interfaces';
 import config from 'config'
 
 chai.should()

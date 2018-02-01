@@ -1,8 +1,9 @@
 import * as Koa from 'koa'
 import sites from './sites'
+import config from 'config'
 
 const app = new Koa()
-const port = 8888
+const port = config.web.port || 8888
 
 app
   .use(require('koa-body')())

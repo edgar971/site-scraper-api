@@ -1,5 +1,8 @@
 ### Node ###
 
+# App
+config/config.json
+config/database.json
 # Logs
 logs
 npm-debug.log*

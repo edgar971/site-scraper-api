@@ -1,6 +1,6 @@
 import * as chai from 'chai'
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
-import { Site } from '../common/interfaces';
+import { ISite } from '../common/interfaces';
 
 chai.should()
 const apiUrl = 'http://localhost:8888/v2'
@@ -9,7 +9,7 @@ context('#sitesApi specs', () => {
   describe('when calling the API endpoint to list the sites successfully', () => {
     const url = `${apiUrl}/sites`
     let response: AxiosResponse
-    let sites: Array<Site>
+    let sites: Array<ISite>
 
     before(async () => {
       response = await axios.get(url)

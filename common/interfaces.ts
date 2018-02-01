@@ -1,4 +1,4 @@
-export interface ISite {
+export interface Site {
   id?: number,
   url?: string,
   directory?: string,

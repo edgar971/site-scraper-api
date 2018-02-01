@@ -19,6 +19,10 @@
   },
   "author": "Edgar Pino <me@edgarpino.com>",
   "license": "ISC",
+  "private": true,
+  "workspaces": [
+    "config"
+  ],
   "bugs": {
     "url": "https://github.com/edgar971/site-scraper-api/issues"
   },

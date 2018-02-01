@@ -21,7 +21,8 @@
   "license": "ISC",
   "private": true,
   "workspaces": [
-    "config"
+    "config",
+    "common"
   ],
   "bugs": {
     "url": "https://github.com/edgar971/site-scraper-api/issues"

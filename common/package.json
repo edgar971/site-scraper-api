@@ -2,12 +2,6 @@
   "name": "common",
   "version": "1.0.0",
   "description": "common utilities for website scraper",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "author": "Edgar Pino <me@edgarpino.com>",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/edgar971/site-scraper-api/issues"
-  }
+  "license": "ISC"
 }

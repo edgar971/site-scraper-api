@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "watch": "pm2 start index.js --watch",
+    "api:start": "node index.js",
+    "api:watch": "pm2 start index.js --watch",
     "watch:logs": "pm2 logs",
     "test": "mocha --opts ./test/mocha.opts",
     "test:watch": "yarn test --watch --watch-extensions ts",

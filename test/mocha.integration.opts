@@ -4,4 +4,4 @@
 --recursive 
 --reporter spec
 
-{,!(node_modules)/__integration_specs__/**/}*.specs.ts*
+{,!(node_modules)/**/__integration_specs__/**/}*.specs.ts*

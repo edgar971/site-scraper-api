@@ -12,7 +12,7 @@
     "test:acceptance": "mocha --opts ./test/mocha.acceptance.opts",
     "test:acceptance:watch": "yarn test:acceptance --watch --watch-extensions ts",
     "test:integration": "mocha --opts ./test/mocha.integration.opts",
-    "test:integration:watch": "yarn test:integration --watch --watch-extensions ts"
+    "test:integration:watch": "ENV=integration yarn test:integration --watch --watch-extensions ts"
   },
   "repository": {
     "type": "git",

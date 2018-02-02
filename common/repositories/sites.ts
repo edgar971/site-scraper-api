@@ -41,6 +41,11 @@ export async function getSite(siteId: number): Promise<Site> {
   }
 }
 
+export async function getSites(): Promise<Site[]> {
+  const query = sql`SELECT * from sites`
+  return await connect().any(query)
+}
+
 export async function deleteSite(siteId: number) {
   const query = sql`DELETE FROM sites WHERE id = ${siteId}`
   await connect().query(query)

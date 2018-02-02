@@ -1,6 +1,6 @@
 import * as chai from 'chai'
 import { closeDatabase } from '../../postgres'
-import { saveSite, getSite, deleteSite } from '../../repositories/sites'
+import { saveSite, getSite, deleteSite, getSites } from '../../repositories/sites'
 import { Site } from '../../interfaces'
 import config from 'config'
 
@@ -59,6 +59,51 @@ context('#sites repository integration specs', () => {
     })
 
     it('should return a null record', () => expect(savedSite).to.be.null)
+  })
+  
+  after(() => {
+    closeDatabase()
+  })
+
+  describe('when loading multiple site records successfully', () => {
+    let savedSites: Site[]
+    let savedSiteId1
+    let savedSiteId2
+
+    const site1: Site = {
+      url: 'websiturl',
+      directory: 'random/dir',
+      base_path: 'base/path',
+      title: 'website',
+      screenshot: 'string.png',
+      entire_site: false,
+      processed: false
+    }
+
+    const site2: Site = {
+      url: 'websiturltwo',
+      directory: 'random/dir/2',
+      base_path: 'base/path',
+      title: 'website 2',
+      screenshot: 'string.png',
+      entire_site: false,
+      processed: true
+    }
+
+    before(async () => {
+      savedSiteId1 = await saveSite(site1)
+      savedSiteId2 = await saveSite(site2)
+      savedSites = await getSites()
+    })
+
+    it('should return two records', () => savedSites.length.should.equal(2))
+    it('should contain site one', () => savedSites.filter(x => x.title === site1.title).length.should.equal(1))
+    it('should contain site two', () => savedSites.filter(x => x.title === site2.title).length.should.equal(1))
+
+    after(async () => {
+      await deleteSite(savedSiteId1)
+      await deleteSite(savedSiteId2)
+    })
   })
   
   after(() => {

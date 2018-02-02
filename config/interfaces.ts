@@ -1,6 +1,6 @@
 export interface Config {
   appName: string
-  env: "dev" | "production" | "test" | "integration"
+  env: "dev" | "production" | "acceptance" | "integration"
   database: {
     username: string
     password: string

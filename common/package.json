@@ -3,5 +3,6 @@
   "version": "1.0.0",
   "description": "common utilities for website scraper",
   "author": "Edgar Pino <me@edgarpino.com>",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {}
 }

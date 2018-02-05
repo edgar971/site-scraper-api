@@ -23,7 +23,8 @@
   "private": true,
   "workspaces": [
     "config",
-    "common"
+    "common",
+    "scraper"
   ],
   "bugs": {
     "url": "https://github.com/edgar971/site-scraper-api/issues"

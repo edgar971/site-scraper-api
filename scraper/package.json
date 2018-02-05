@@ -1,0 +1,9 @@
+{
+  "name": "scraper",
+  "version": "1.0.0",
+  "license": "MIT",
+  "dependencies": {
+    "@types/puppeteer": "^1.0.0",
+    "puppeteer": "^1.0.0"
+  }
+}

@@ -2,7 +2,6 @@ import * as chai from 'chai'
 import { closeDatabase } from '../../postgres'
 import { saveSite, getSite, deleteSite, getSites } from '../../repositories/sites'
 import { Site } from '../../interfaces'
-import config from 'config'
 
 chai.should()
 const expect = chai.expect

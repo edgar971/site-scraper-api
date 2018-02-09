@@ -1,0 +1,36 @@
+import * as chai from 'chai'
+import * as sinonChai from 'sinon-chai'
+import * as sinon from 'sinon'
+import * as puppeteer from '../puppeteer'
+import { getPageHTMLContent } from '../index'
+
+chai.use(sinonChai)
+chai.should()
+const sandbox = sinon.sandbox.create()
+
+context('#scraper specs', () => {
+  describe('when getting data for a url successfully', () => {
+    const siteUrl = 'example.com'
+    const expectedResult = '<h1>Welcome</h1>'
+    let gotoSub
+    let contentSub
+    let result
+
+    before(async () => {
+      gotoSub = sandbox.stub().resolves({})
+      contentSub = sandbox.stub().resolves(expectedResult)
+      sandbox.stub(puppeteer, 'createBrowserPage').resolves({
+        goto: gotoSub,
+        content: contentSub
+      })
+
+      result = await getPageHTMLContent(siteUrl)
+    })
+
+    it('should go to the page with the correct url', () => gotoSub.should.have.been.calledWithExactly(siteUrl))
+    it('should get the page content', () => contentSub.should.have.been.called)
+    it('should return the expected result', () => result.should.eql(expectedResult))
+
+    after(() => sandbox.restore())
+  })
+})

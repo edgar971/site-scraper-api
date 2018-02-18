@@ -1,5 +1,5 @@
 import * as chai from 'chai'
-import { getPageHTMLContent } from '../index'
+import { getHTMLContent } from '../page';
 
 chai.should()
 
@@ -9,7 +9,7 @@ context('#Scraper integration tests', () => {
     let content
 
     before(async ()=> {
-      content = await getPageHTMLContent(targetWebsite)
+      content = await getHTMLContent(targetWebsite)
     });
 
     it('should return the HTML content', () => content.should.not.be.null)

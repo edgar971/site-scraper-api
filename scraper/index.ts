@@ -1,9 +1,5 @@
-import { createBrowserPage } from './puppeteer'
+import { getHTMLContent } from "./page"
 
-export async function getPageHTMLContent(url: string): Promise<string> {
-  const page = await createBrowserPage()
-  await page.goto(url)
-  return await page.content()
+export async function scrapePage(url: string): Promise<void> {
+  await getHTMLContent(url)
 }
-
-

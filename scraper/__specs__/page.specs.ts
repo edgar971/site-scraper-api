@@ -38,22 +38,3 @@ context('#getHTMLContent specs', () => {
     })
   })
 })
-
-
-  // describe('when scraping a single website', () => {
-  //   const siteUrl = 'example.com'
-  //   const expectedHTML = 'really awesome site content'
-  //   let result
-
-  //   before(async () => {
-  //     sandbox.stub(page, 'getHTMLContent').resolves(expectedHTML)
-  //     result = await scraper.scrapePage(siteUrl)
-  //   })
-
-  //   it('should have called the getHTMLContent', () => page.getHTMLContent.should.have.been.calledWithExactly(siteUrl))
-
-  //   after(async () => {
-  //     await closeBrowser()
-  //     sandbox.restore()
-  //   })
-  // })

@@ -2,8 +2,8 @@ import * as chai from 'chai'
 import * as sinonChai from 'sinon-chai'
 import * as sinon from 'sinon'
 import * as puppeteer from '../puppeteer'
-import { closeBrowser } from '../puppeteer';
-import * as page from '../page';
+import { closeBrowser } from '../puppeteer'
+import * as page from '../page'
 
 chai.use(sinonChai)
 chai.should()
@@ -36,5 +36,21 @@ context('#getHTMLContent specs', () => {
       await closeBrowser()
       sandbox.restore()
     })
+  })
+})
+
+context('#savePageImages', () => {
+  describe('when saving page images successfully', () => {
+    let pageStub
+
+    before(async () => {
+      pageStub = {
+        $$: sandbox.stub()
+      }
+      await page.savePageImages(pageStub)
+    })
+
+    it('should have queried for all images', () => pageStub.$$.should.have.been.calledWithExactly(page.IMAGES_DOCUMENT_SELECTOR))
+    it('should save each image', () => false.should.be.true)
   })
 })

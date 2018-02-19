@@ -3,29 +3,40 @@ import * as sinonChai from 'sinon-chai'
 import * as sinon from 'sinon'
 import * as page from '../page'
 import * as scraper from '../index'
-import { closeBrowser } from '../puppeteer/index'
-
+import * as puppeteer from '../puppeteer/index'
 
 chai.use(sinonChai)
 chai.should()
 const sandbox = sinon.sandbox.create()
 
 context('#scrapePage', () => {
-    describe('when scraping a single website', () => {
+  describe('when scraping a single website with images, css, and js files successfully', () => {
     const siteUrl = 'example.com'
-    const expectedHTML = 'really awesome site content'
-    let result
+    let pageStub
+    let gotoStub
+    let closeStub 
 
     before(async () => {
-      sandbox.stub(page, 'getHTMLContent').resolves(expectedHTML)
-      result = await scraper.scrapePage(siteUrl)
+      gotoStub = sandbox.stub().resolves()
+      closeStub = sandbox.stub().resolves()
+      pageStub = {
+        goto: gotoStub,
+        close: closeStub
+      }
+      sandbox.stub(puppeteer, 'createBrowserPage').resolves(pageStub)
+      sandbox.stub(page, 'savePageImages')
+      sandbox.stub(page, 'savePageCSSAndJS')
+      await scraper.scrapePage(siteUrl)
     })
 
-    it('should have called the getHTMLContent', () => page.getHTMLContent.should.have.been.calledWithExactly(siteUrl))
-    it('should return the HTML', () => result.should.equal(expectedHTML))
+    it('should have created the browser page', () => puppeteer.createBrowserPage.should.have.been.called)
+    it('should have navigavated to the url', () => gotoStub.should.have.been.calledWithExactly(siteUrl));
+    it('should have saved the images', () => page.savePageImages.should.have.been.calledWithExactly(pageStub));
+    it('should have saved the css and javascript files', () => page.savePageCSSAndJS.should.been.calledWithExactly(pageStub));
+    it('should have closed the browser page', () => closeStub.should.have.been.called)
 
     after(async () => {
-      await closeBrowser()
+      await puppeteer.closeBrowser()
       sandbox.restore()
     })
   })

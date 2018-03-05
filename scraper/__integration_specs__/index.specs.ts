@@ -20,5 +20,4 @@ context.only('#Scraper integration tests', () => {
   after(async () => {
     await closeBrowser()
   })
-
 })

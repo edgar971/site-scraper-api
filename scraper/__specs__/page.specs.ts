@@ -76,3 +76,41 @@ context('#getPageImageUrls', () => {
     after(() => sandbox.restore())
   })
 })
+
+
+context('#getPageCssAndJsUrls', () => {
+  describe('when querying a page with two js files and one css file', () => {
+    let pageStub
+    let imageUrls: string[]
+    let domCheerio
+    let mapStub
+    let getStub
+    const htmlContent = '<html>really cool html</html>'
+    const expectedLinks = ['jsUrl', 'jsUrl2', 'cssUrl']
+
+    before(async () => {
+      getStub = sandbox.stub().returns(expectedLinks)
+      mapStub = sandbox.stub().returns({
+        get: getStub
+      })
+      domCheerio = sandbox.stub().returns({
+        map: mapStub
+      })
+      pageStub = {
+        content: sandbox.stub().resolves(htmlContent)
+      }
+
+      sandbox.stub(cheerio, 'load').returns(domCheerio)
+      imageUrls = await page.getPageCssAndJsUrls(pageStub)
+    })
+
+    it('should have retrived the html content from the page', () => pageStub.content.should.have.been.called)
+    it('should have loaded the content with cheerio', () => cheerio.load.should.have.been.calledWithExactly(htmlContent))
+    it('should have queried the dom with the rigth selector', () => domCheerio.should.have.been.calledWithExactly(page.CSS_AND_JS_DOCUMENT_SELECTOR));
+    it('should have mapped over the link elements', () => mapStub.should.have.been.called);
+    it('should have called get to get array of links', () => getStub.should.have.been.called);
+    it('should have retrieved the attribute', () => imageUrls.should.equal(expectedLinks));
+
+    after(() => sandbox.restore())
+  })
+})

@@ -1,6 +1,7 @@
 import * as chai from 'chai'
 import * as sinonChai from 'sinon-chai'
 import * as sinon from 'sinon'
+import * as cheerio from 'cheerio'
 import * as puppeteer from '../puppeteer'
 import { closeBrowser } from '../puppeteer'
 import * as page from '../page'
@@ -39,18 +40,39 @@ context('#getHTMLContent specs', () => {
   })
 })
 
-context('#savePageImages', () => {
-  describe('when saving page images successfully', () => {
+context('#getPageImageUrls', () => {
+  describe('when querying a page with two image urls', () => {
     let pageStub
+    let imageUrls: string[]
+    let domCheerio
+    let mapStub
+    let getStub
+    const htmlContent = '<html>really cool html</html>'
+    const expectedLinks = ['url', 'url2']
 
     before(async () => {
+      getStub = sandbox.stub().returns(expectedLinks)
+      mapStub = sandbox.stub().returns({
+        get: getStub
+      })
+      domCheerio = sandbox.stub().returns({
+        map: mapStub
+      })
       pageStub = {
-        $$: sandbox.stub()
+        content: sandbox.stub().resolves(htmlContent)
       }
-      await page.savePageImages(pageStub)
+
+      sandbox.stub(cheerio, 'load').returns(domCheerio)
+      imageUrls = await page.getPageImageUrls(pageStub)
     })
 
-    it('should have queried for all images', () => pageStub.$$.should.have.been.calledWithExactly(page.IMAGES_DOCUMENT_SELECTOR))
-    it('should save each image', () => false.should.be.true)
+    it('should have retrived the html content from the page', () => pageStub.content.should.have.been.called)
+    it('should have loaded the content with cheerio', () => cheerio.load.should.have.been.calledWithExactly(htmlContent))
+    it('should have queried the dom with the rigth selector', () => domCheerio.should.have.been.calledWithExactly(page.IMAGES_DOCUMENT_SELECTOR));
+    it('should have mapped over the link elements', () => mapStub.should.have.been.called);
+    it('should have called get to get array of links', () => getStub.should.have.been.called);
+    it('should have retrieved the attribute', () => imageUrls.should.equal(expectedLinks));
+
+    after(() => sandbox.restore())
   })
 })
